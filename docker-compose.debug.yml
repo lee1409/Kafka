@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  kafka:
+    image: kafka
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - :
