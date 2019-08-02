@@ -8,6 +8,9 @@ services:
       - 2181:2181
     networks: 
       - kafka-network
+    volumes: # Production purpose 
+      - /home/ylee/data/zookeeper/data:/var/lib/zookeeper/data
+      - /home/ylee/data/zookeeper/log:/var/lib/zookeeper/log
 
   kafka-1:
     image: confluentinc/cp-kafka:5.3.0
@@ -18,6 +21,8 @@ services:
       - 9021:9021
     depends_on:
       - zoo
+    volumes: # Production purpose 
+      - /home/ylee/data/kafka1:/var/lib/kafka/data 
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
       - KAFKA_BROKER_ID=1
@@ -37,6 +42,8 @@ services:
       - 9022:9022
     depends_on:
       - zoo
+    volumes: # Production purpose 
+      - /home/ylee/data/kafka2:/var/lib/kafka/data
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
       - KAFKA_BROKER_ID=2 
@@ -56,6 +63,8 @@ services:
       - 9023:9023
     depends_on:
       - zoo
+    volumes: # Production purpose 
+      - /home/ylee/data/kafka3:/var/lib/kafka/data
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
       - KAFKA_BROKER_ID=3
