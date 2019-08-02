@@ -111,6 +111,24 @@ services:
       - CONNECT_REST_ADVERTISED_HOST_NAME=localhost
       - CONNECT_PLUGIN_PATH=/usr/share/java
 
+  ksql-server:
+    image: confluentinc/cp-ksql-server
+    restart: always 
+    networks:
+      - kafka-network
+    ports:
+      - 8088:8088
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    environment:
+      - KSQL_BOOTSTRAP_SERVERS=kafka-3:29092,kafka-2:29092,kafka-1:29092
+      - KSQL_LISTENERS=http://0.0.0.0:8088
+      - KSQL_KSQL_SERVICE_ID=confluent_ksql
+    
+
+  
 
 networks: 
   kafka-network:
