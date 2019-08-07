@@ -33,47 +33,6 @@ services:
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
 
-  kafka-2:
-    image: confluentinc/cp-kafka:5.3.0
-    restart: always
-    networks: 
-      - kafka-network
-    ports:
-      - 9022:9022
-    depends_on:
-      - zoo
-    volumes: # Production purpose 
-      - /home/ylee/data/kafka2:/var/lib/kafka/data
-    environment:
-      - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
-      - KAFKA_BROKER_ID=2 
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 
-      # Setting Up Kafka communication
-      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092, EXTERNAL://0.0.0.0:9022
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka-2:29092, EXTERNAL://localhost:9022, 
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-
-  kafka-3:
-    image: confluentinc/cp-kafka:5.3.0
-    restart: always
-    networks: 
-      - kafka-network
-    ports:
-      - 9023:9023
-    depends_on:
-      - zoo
-    volumes: # Production purpose 
-      - /home/ylee/data/kafka3:/var/lib/kafka/data
-    environment:
-      - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
-      - KAFKA_BROKER_ID=3
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 
-      # Setting Up Kafka communication
-      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092, EXTERNAL://0.0.0.0:9023
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka-3:29092, EXTERNAL://localhost:9023
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
 
   # schema-registry:
   #   image: 1ambda/kafka-connect
@@ -102,17 +61,17 @@ services:
       - 28082:28082
     depends_on:
       - zoo
-      - kafka-1
-      - kafka-2
-      - kafka-3
       # - schema-registry
     environment:
       - CONNECT_REST_PORT=28082
-      - CONNECT_BOOTSTRAP_SERVERS=kafka-3:29092,kafka-2:29092,kafka-1:29092
+      - CONNECT_BOOTSTRAP_SERVERS=kafka-1:29092
       - CONNECT_GROUP_ID="mysql" 
       - CONNECT_CONFIG_STORAGE_TOPIC=mysql-config
       - CONNECT_OFFSET_STORAGE_TOPIC=mysql-offsets
       - CONNECT_STATUS_STORAGE_TOPIC=mysql-status
+      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
       - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
@@ -129,10 +88,8 @@ services:
       - 8088:8088
     depends_on:
       - kafka-1
-      - kafka-2
-      - kafka-3
     environment:
-      - KSQL_BOOTSTRAP_SERVERS=kafka-3:29092,kafka-2:29092,kafka-1:29092
+      - KSQL_BOOTSTRAP_SERVERS=kafka-1:29092
       - KSQL_LISTENERS=http://0.0.0.0:8088
       - KSQL_KSQL_SERVICE_ID=confluent_ksql
     
