@@ -1,0 +1,12 @@
+version: '3.0'
+
+services:
+  zoo:
+    volumes: # Production purpose 
+      - /home/ylee/data/zookeeper/data:/var/lib/zookeeper/data
+      - /home/ylee/data/zookeeper/log:/var/lib/zookeeper/log
+
+  kafka-1:
+    volumes: # Production purpose 
+      - /home/ylee/data/kafka1:/var/lib/kafka/data 
+

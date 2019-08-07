@@ -1,0 +1,69 @@
+version: '3.0'
+
+services:
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    restart: always
+    ports:
+      - 8081:8081
+    networks: 
+      - kafka-network
+    depends_on:
+      - zoo
+      - kafka-1
+    environment:
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zoo:2181 
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081
+  
+  mysql-connect:
+    build: ./kafka-connect
+    image: mysql-connect:latest
+    restart: always
+    networks: 
+      - kafka-network
+    ports:
+      - 28082:28082
+    depends_on:
+      - zoo
+      - schema-registry
+    environment:
+      - CONNECT_REST_PORT=28082
+      - CONNECT_BOOTSTRAP_SERVERS=kafka-1:9021
+      - CONNECT_GROUP_ID="mysql" 
+      - CONNECT_CONFIG_STORAGE_TOPIC=mysql-config
+      - CONNECT_OFFSET_STORAGE_TOPIC=mysql-offsets
+      - CONNECT_STATUS_STORAGE_TOPIC=mysql-status
+      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+
+      - CONNECT_KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+
+      - CONNECT_REST_ADVERTISED_HOST_NAME=localhost
+      - CONNECT_PLUGIN_PATH=/usr/share/java
+
+  ksql-server:
+    image: confluentinc/cp-ksql-server
+    restart: always 
+    networks:
+      - kafka-network
+    ports:
+      - 8088:8088
+    depends_on:
+      - kafka-1
+    environment:
+      - KSQL_BOOTSTRAP_SERVERS=kafka-1:9021
+      - KSQL_LISTENERS=http://0.0.0.0:8088
+      - KSQL_KSQL_SERVICE_ID=confluent_ksql
+      - KSQL_KSQL_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+
+networks: 
+  kafka-network:
+    driver: bridge

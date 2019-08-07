@@ -8,9 +8,6 @@ services:
       - 2181:2181
     networks: 
       - kafka-network
-    volumes: # Production purpose 
-      - /home/ylee/data/zookeeper/data:/var/lib/zookeeper/data
-      - /home/ylee/data/zookeeper/log:/var/lib/zookeeper/log
 
   kafka-1:
     image: confluentinc/cp-kafka:5.3.0
@@ -21,80 +18,13 @@ services:
       - 9021:9021
     depends_on:
       - zoo
-    volumes: # Production purpose 
-      - /home/ylee/data/kafka1:/var/lib/kafka/data 
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zoo:2181 
       - KAFKA_BROKER_ID=1
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
       # Setting Up Kafka communication
-      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:29092, EXTERNAL://0.0.0.0:9021
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka-1:29092, EXTERNAL://localhost:9021 
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT, EXTERNAL:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-
-
-  # schema-registry:
-  #   image: 1ambda/kafka-connect
-  #   restart: always
-  #   ports:
-  #     - 8081:8081
-  #   networks: 
-  #     - kafka-network
-  #   depends_on:
-  #     - zoo
-  #     - kafka-1
-  #     - kafka-2
-  #     - kafka-3
-  #   environment:
-  #     - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zoo:2181 
-  #     - SCHEMA_REGISTRY_HOST_NAME=schema-registry
-  #     - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081
-  
-  mysql-connect:
-    build: ./kafka-connect
-    image: mysql-connect:latest
-    restart: always
-    networks: 
-      - kafka-network
-    ports:
-      - 28082:28082
-    depends_on:
-      - zoo
-      # - schema-registry
-    environment:
-      - CONNECT_REST_PORT=28082
-      - CONNECT_BOOTSTRAP_SERVERS=kafka-1:29092
-      - CONNECT_GROUP_ID="mysql" 
-      - CONNECT_CONFIG_STORAGE_TOPIC=mysql-config
-      - CONNECT_OFFSET_STORAGE_TOPIC=mysql-offsets
-      - CONNECT_STATUS_STORAGE_TOPIC=mysql-status
-      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_REST_ADVERTISED_HOST_NAME=localhost
-      - CONNECT_PLUGIN_PATH=/usr/share/java
-
-  ksql-server:
-    image: confluentinc/cp-ksql-server
-    restart: always 
-    networks:
-      - kafka-network
-    ports:
-      - 8088:8088
-    depends_on:
-      - kafka-1
-    environment:
-      - KSQL_BOOTSTRAP_SERVERS=kafka-1:29092
-      - KSQL_LISTENERS=http://0.0.0.0:8088
-      - KSQL_KSQL_SERVICE_ID=confluent_ksql
-    
-
-  
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9021
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9021
 
 networks: 
   kafka-network:
