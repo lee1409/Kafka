@@ -10,3 +10,6 @@ services:
     volumes: # Production purpose 
       - /home/ylee/data/kafka1:/var/lib/kafka/data 
 
+networks: 
+  kafka-network:
+    driver: bridge
