@@ -10,7 +10,7 @@ services:
     volumes: # Production purpose 
       - /home/ylee/data/kafka1:/var/lib/kafka/data 
     environment:
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9021, EXTERNAL://anomalies-detection.ai.moneylion.com:29092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9021, EXTERNAL://anomalies-detection.ai.moneylion.com:28082
 
 networks: 
   kafka-network:
