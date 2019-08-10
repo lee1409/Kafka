@@ -16,6 +16,7 @@ services:
       - kafka-network
     ports:
       - 9021:9021
+      - 29092:29092
     depends_on:
       - zoo
     environment:
@@ -23,8 +24,11 @@ services:
       - KAFKA_BROKER_ID=1
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
       # Setting Up Kafka communication
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9021
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9021
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9021, EXTERNAL://0.0.0.0:29092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9021, EXTERNAL://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=EXTERNAL:PLAINTEXT, PLAINTEXT:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
 
 networks: 
   kafka-network:
